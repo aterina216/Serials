@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "serials")
 data class SerialEntity(
     @PrimaryKey (autoGenerate = true)
-    val id: Int,
+    val id: Int = 0,
     val Poster: String,
     val Title: String,
     val Type: String,

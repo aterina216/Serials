@@ -4,42 +4,36 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.api.RetrofitClient
 import com.example.serials.data.remote.dto.SerialOMDb
+import com.example.serials.data.repository.SerialsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class SerialsViewModel: ViewModel() {
+class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
 
-    private var serialsList = MutableStateFlow<List<SerialOMDb>>(emptyList())
-    val _serialList: StateFlow<List<SerialOMDb>> = serialsList.asStateFlow()
+    private var serialsList = MutableStateFlow<List<SerialEntity>>(emptyList())
+    val _serialList: StateFlow<List<SerialEntity>> = serialsList.asStateFlow()
 
     init {
+        Log.d("ViewModel", "🚀 ViewModel создан")
         loadSerialsFromDB()
     }
 
     fun loadSerialsFromDB() {
+        Log.d("ViewModel", "🔄 loadSerialsFromDB() вызван")
         viewModelScope.launch {
             try {
-                Log.d("ViewModel", "🎯 Начали загрузку сериалов")
-                val response = RetrofitClient.api.get2025Series()
-
-                // ДОБАВЬ ПРОВЕРКУ RESPONSE
-                if (response.Response == "True") {
-                    Log.d("ViewModel", "✅ Успех! Найдено сериалов: ${response.Search?.size ?: 0}")
-                    serialsList.value = response.Search ?: emptyList()
-
-                    // Логируем первые 3 сериала для проверки
-                    response.Search?.take(3)?.forEach { serial ->
-                        Log.d("ViewModel", "📺 Сериал: ${serial.Title}, Год: ${serial.Year}")
-                    }
-                } else {
-                    Log.e("ViewModel", "❌ Ошибка API: ${response}")
-                }
-            } catch (e: Exception) {
-                Log.e("ViewModel", "💥 Ошибка загрузки: ${e.message}", e)
+                val data = repository.getSerialsFromRepo()
+                Log.d("ViewModel", "📊 Получено данных: ${data.size}")
+                serialsList.value = data
+                Log.d("ViewModel", "✅ StateFlow обновлен")
+            }
+            catch (e: Exception) {
+                Log.e("ViewModel", "💥 Ошибка в ViewModel: ${e.message}")
             }
         }
     }

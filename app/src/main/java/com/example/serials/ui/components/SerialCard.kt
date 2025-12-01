@@ -18,11 +18,12 @@ import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.unit.dp
 import androidx.room.util.TableInfo
 import coil.compose.AsyncImage
+import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.dto.SerialOMDb
 import com.example.serials.ui.viewmodel.SerialsViewModel
 
 @Composable
-fun SerialCard(serial: SerialOMDb) {
+fun SerialCard(serial: SerialEntity) {
     
     Card(modifier = Modifier.fillMaxWidth()
         .padding(15.dp),
