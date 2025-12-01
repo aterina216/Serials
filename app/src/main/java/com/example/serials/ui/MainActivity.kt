@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.serials.SerialsApp
+import com.example.serials.ui.navigation.Navigation
 import com.example.serials.ui.screen.HomeScreen
 import com.example.serials.ui.theme.SerialsTheme
 import com.example.serials.ui.viewmodel.SerialsViewModel
@@ -32,7 +33,7 @@ class MainActivity : ComponentActivity() {
             SerialsTheme {
 
                 val viewModel: SerialsViewModel = viewModel
-                HomeScreen(viewModel)
+                Navigation(viewModel)
             }
         }
     }
