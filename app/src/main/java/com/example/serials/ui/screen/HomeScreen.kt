@@ -13,12 +13,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.example.serials.ui.components.SerialCard
 import com.example.serials.ui.viewmodel.SerialsViewModel
 
 @Composable
 fun HomeScreen(
-    viewModel: SerialsViewModel
+    viewModel: SerialsViewModel,
+    controller: NavController
 ) {
 
     val serialList by viewModel._serialList.collectAsState()
@@ -38,7 +40,7 @@ fun HomeScreen(
     } else {
         LazyColumn {
             items(serialList) { artist ->
-                SerialCard(artist)
+                SerialCard(artist, controller)
             }
         }
     }

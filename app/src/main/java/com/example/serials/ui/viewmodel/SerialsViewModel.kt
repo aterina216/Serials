@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.api.RetrofitClient
+import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.remote.dto.SerialOMDb
 import com.example.serials.data.repository.SerialsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,11 +19,27 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
     private var serialsList = MutableStateFlow<List<SerialEntity>>(emptyList())
     val _serialList: StateFlow<List<SerialEntity>> = serialsList.asStateFlow()
 
+    var currentserial = MutableStateFlow<SerialDetails?>(null)
+
     init {
         Log.d("ViewModel", "🚀 ViewModel создан")
         loadSerialsFromDB()
     }
 
+    fun loadSerialDetails(imdb: String) {
+        Log.d("ViewModel", "🔵 loadSerialDetails вызван с imdb: $imdb")
+        viewModelScope.launch {
+            try {
+                Log.d("ViewModel", "🔄 Начинаем загрузку деталей...")
+                val details = repository.getSerialDetails(imdb)
+                Log.d("ViewModel", "✅ Детали получены: ${details?.Title ?: "NULL"}")
+                currentserial.value = details
+            } catch (e: Exception) {
+                Log.e("ViewModel", "❌ Ошибка загрузки деталей", e)
+                println("Ошибка: ${e.message}")
+            }
+        }
+    }
     fun loadSerialsFromDB() {
         Log.d("ViewModel", "🔄 loadSerialsFromDB() вызван")
         viewModelScope.launch {

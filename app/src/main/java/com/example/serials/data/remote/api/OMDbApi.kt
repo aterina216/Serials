@@ -1,5 +1,6 @@
 package com.example.serials.data.remote.api
 
+import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.remote.response.OMDbResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -14,4 +15,11 @@ interface OMDbApi {
         @Query("type") type: String = "series",
         @Query("s") search: String = "new"
     ): OMDbResponse
+
+    @GET("/")
+    suspend fun serialDetails(
+        @Query("apikey") apiKey: String = KEY.API_KEY,
+        @Query("i") i: String,
+        @Query("plot") plot: String = "full",
+    ): SerialDetails
 }

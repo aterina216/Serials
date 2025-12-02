@@ -37,6 +37,7 @@ import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.room.util.TableInfo
 import coil.compose.AsyncImage
 import com.example.serials.data.db.entity.SerialEntity
@@ -46,7 +47,7 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import java.nio.file.WatchEvent
 
 @Composable
-fun SerialCard(serial: SerialEntity) {
+fun SerialCard(serial: SerialEntity, navController: NavController) {
 
     Card(modifier = Modifier.fillMaxWidth()
         .padding(horizontal = 20.dp, vertical = 8.dp)
@@ -55,7 +56,10 @@ fun SerialCard(serial: SerialEntity) {
         elevation = CardDefaults.cardElevation(4.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFFF8F9FA)
-        ))
+        ),
+        onClick = {
+            navController.navigate("details/${serial.imdbID}")
+        })
     {
         Row(modifier = Modifier.fillMaxSize()
             .padding(16.dp),

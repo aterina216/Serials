@@ -5,6 +5,7 @@ import com.example.serials.data.db.dao.SerialDao
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.mapper.ConverterResponseFromEntity
 import com.example.serials.data.remote.api.OMDbApi
+import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.remote.dto.SerialOMDb
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,15 +54,29 @@ class SerialsRepository(
         }
     }
 
-   suspend fun getSerialsFromRepo(): List<SerialEntity> {
-       Log.d("Repository", "🔄 getSerialsFromRepo() вызван")
+    suspend fun getSerialsFromRepo(): List<SerialEntity> {
+        Log.d("Repository", "🔄 getSerialsFromRepo() вызван")
         val serialFromDB = loadSerialsFromDb()
-       if(serialFromDB.isNotEmpty()) {
-           Log.d("Repository", "🎯 Возвращаем данные из БД")
-           return serialFromDB
-       }
-        else {
-           Log.d("Repository", "🔄 БД пуста, загружаем из API")
-            return loadSerialsFromApi()}
+        if (serialFromDB.isNotEmpty()) {
+            Log.d("Repository", "🎯 Возвращаем данные из БД")
+            return serialFromDB
+        } else {
+            Log.d("Repository", "🔄 БД пуста, загружаем из API")
+            return loadSerialsFromApi()
+        }
+    }
+
+    suspend fun getSerialDetails(imbd: String): SerialDetails? {
+
+        return try {
+            val serialDetails = api.serialDetails(i = imbd)
+            if (serialDetails.Response == "True") {
+                serialDetails
+            } else null
+        } catch (e: Exception) {
+            println("${e.message}")
+            null
+        }
+
     }
 }
