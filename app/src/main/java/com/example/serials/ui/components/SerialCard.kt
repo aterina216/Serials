@@ -70,7 +70,7 @@ fun SerialCard(serial: SerialEntity, navController: NavController) {
         Box(modifier = Modifier.fillMaxSize()
             .background(
                 brush = Brush.linearGradient(
-                    colors = listOf(lightBlue.copy(alpha = 0.7f), Blue.copy(alpha = 0.15f))
+                    colors = listOf(lightBlue.copy(alpha = 0.5f), Blue.copy(alpha = 0.15f))
                 )
             )) {
 
