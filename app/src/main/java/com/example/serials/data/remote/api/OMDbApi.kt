@@ -22,4 +22,11 @@ interface OMDbApi {
         @Query("i") i: String,
         @Query("plot") plot: String = "full",
     ): SerialDetails
+
+    @GET("/")
+    suspend fun searchSeries(
+        @Query("apikey") apiKey: String = KEY.API_KEY,
+        @Query("s") searchQuery: String,
+        @Query("type") type: String = "series"
+    ): OMDbResponse
 }

@@ -21,6 +21,10 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
 
     var currentserial = MutableStateFlow<SerialDetails?>(null)
 
+    private var _searchResult = MutableStateFlow<List<SerialEntity>>(emptyList())
+    val searchResult: StateFlow<List<SerialEntity>> = _searchResult
+
+
     init {
         Log.d("ViewModel", "🚀 ViewModel создан")
         loadSerialsFromDB()
@@ -52,6 +56,13 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
             catch (e: Exception) {
                 Log.e("ViewModel", "💥 Ошибка в ViewModel: ${e.message}")
             }
+        }
+    }
+
+    fun searchSerials (query: String) {
+        viewModelScope.launch {
+            val response = repository.searchSeries(query)
+            _searchResult.value = response
         }
     }
 }
