@@ -10,7 +10,7 @@ import com.example.serials.ui.screen.HomeScreen
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.serials.ui.components.SerialDetail
+import com.example.serials.ui.screen.SerialDetail
 
 @Composable
 fun Navigation(viewModel: SerialsViewModel) {

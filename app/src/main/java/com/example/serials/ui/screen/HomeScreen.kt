@@ -1,6 +1,7 @@
 package com.example.serials.ui.screen
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +14,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.navigation.NavController
 import com.example.serials.ui.components.SerialCard
+import com.example.serials.ui.theme.Pink40
+import com.example.serials.ui.theme.Pink80
+import com.example.serials.ui.theme.Purple80
+import com.example.serials.ui.theme.lightBlue
 import com.example.serials.ui.viewmodel.SerialsViewModel
 
 @Composable
@@ -38,9 +44,14 @@ fun HomeScreen(
             Text(text = "Загружаем сериалы")
         }
     } else {
-        LazyColumn {
-            items(serialList) { artist ->
-                SerialCard(artist, controller)
+        Column(modifier = Modifier.background(
+            brush = Brush.linearGradient(colors = listOf(Purple80.copy(alpha = 0.4f), lightBlue.copy(alpha = 0.5f)))
+        )) {
+
+            LazyColumn {
+                items(serialList) { artist ->
+                    SerialCard(artist, controller)
+                }
             }
         }
     }

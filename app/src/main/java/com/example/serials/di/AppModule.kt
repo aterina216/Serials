@@ -67,7 +67,7 @@ class AppModule(private val app: Application) {
 
     @Singleton
     @Provides
-    fun providesRepository(dao: SerialDao, api: OMDbApi, mapper: ConverterResponseFromEntity): SerialsRepository
+    fun providesRepository(dao: SerialDao, api: OMDbApi, mapper: ConverterResponseFromEntity, ): SerialsRepository
     {
         return SerialsRepository(
             dao = dao,
