@@ -38,6 +38,7 @@ fun HomeScreen(
 ) {
 
     val serialList by viewModel._serialList.collectAsState()
+    val searchResult by viewModel.searchResult.collectAsState()
 
     Log.d("HomeScreen", "🔄 Composable перерисовка. Количество сериалов: ${serialList.size}")
 
