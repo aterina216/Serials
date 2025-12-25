@@ -31,7 +31,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SerialsTheme {
-
                 val viewModel: SerialsViewModel = viewModel
                 Navigation(viewModel)
             }

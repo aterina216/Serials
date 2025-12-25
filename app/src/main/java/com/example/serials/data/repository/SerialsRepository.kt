@@ -81,21 +81,19 @@ class SerialsRepository(
     }
 
     suspend fun searchSeries(query: String): List<SerialEntity> {
-        try {
-           val result = api.searchSeries(searchQuery = query)
-            if(result.Response == "True") {
-                val entities = result.Search.map {
-                    serial -> mapper.convertSerialOMDBFromEntity(serial)
+        return try {
+            val result = api.searchSeries(searchQuery = query)
+            if (result.Response == "True") {
+                val entities = result.Search?.map { serial ->
+                    mapper.convertSerialOMDBFromEntity(serial)
                 } ?: emptyList()
-                entities
-            }
-            else {
+                entities  // Возвращаем entities, а не emptyList()!
+            } else {
                 emptyList()
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
+            Log.e("Repository", "❌ Ошибка поиска: ${e.message}")
             emptyList()
         }
-        return emptyList()
     }
 }

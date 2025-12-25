@@ -29,25 +29,21 @@ import com.example.serials.ui.theme.Purple80
 import com.example.serials.ui.theme.PurpleGrey40
 
 @Composable
-fun Search(searchText: String,
-           onTextChanged: (String) -> Unit, ) {
-
-    var text by remember { mutableStateOf(searchText) }
-
+fun Search(
+    searchText: String,           // Получаем текст извне
+    onTextChanged: (String) -> Unit, // Функция для обновления
+    modifier: Modifier = Modifier
+) {
     TextField(
-        value = text,
-        onValueChange = {
-            text = it
-            onTextChanged(it)
-        },
+        value = searchText,  // Используем переданный текст
+        onValueChange = onTextChanged, // Передаем изменения наружу
         leadingIcon = {
             Icon(Icons.Default.Search, contentDescription = "Поиск", tint = Purple80)
         },
         trailingIcon = {
-            if (text.isNotBlank()) {
+            if (searchText.isNotBlank()) {
                 IconButton(onClick = {
-                    text =""
-                    onTextChanged("")
+                    onTextChanged("")  // Очищаем через функцию
                 }) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -59,7 +55,7 @@ fun Search(searchText: String,
         },
         placeholder = {
             Text("Поиск сериалов...",
-                color = Color.Gray.copy(alpha = 0.7f) )
+                color = Color.Gray.copy(alpha = 0.7f))
         },
         shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
@@ -73,7 +69,7 @@ fun Search(searchText: String,
             unfocusedLeadingIconColor = PurpleGrey40
         ),
         singleLine = true,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .shadow(
                 elevation = 8.dp,
@@ -81,5 +77,4 @@ fun Search(searchText: String,
                 clip = false
             )
     )
-
 }
