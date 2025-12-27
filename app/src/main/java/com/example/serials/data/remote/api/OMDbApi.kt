@@ -13,7 +13,8 @@ interface OMDbApi {
         @Query("apikey") apiKey: String = KEY.API_KEY,
         @Query("y") year: Int = 2025,
         @Query("type") type: String = "series",
-        @Query("s") search: String = "new"
+        @Query("s") search: String = "new",
+        @Query("page") page: Int = 1
     ): OMDbResponse
 
     @GET("/")
@@ -27,6 +28,15 @@ interface OMDbApi {
     suspend fun searchSeries(
         @Query("apikey") apiKey: String = KEY.API_KEY,
         @Query("s") searchQuery: String,
-        @Query("type") type: String = "series"
+        @Query("type") type: String = "series",
+        @Query("page") page: Int = 1
+    ): OMDbResponse
+
+    @GET("/")
+    suspend fun loadserialsFromCategories(
+        @Query("apikey") apiKey: String = KEY.API_KEY,
+        @Query("s") category: String,
+        @Query("type") type: String = "series",
+        @Query("page") page: Int = 1
     ): OMDbResponse
 }

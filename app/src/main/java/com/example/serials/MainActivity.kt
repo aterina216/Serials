@@ -1,18 +1,13 @@
-package com.example.serials.ui
+package com.example.serials
 
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.serials.SerialsApp
 import com.example.serials.ui.navigation.Navigation
-import com.example.serials.ui.screen.HomeScreen
 import com.example.serials.ui.theme.SerialsTheme
 import com.example.serials.ui.viewmodel.SerialsViewModel
-import com.example.serials.ui.viewmodel.ViewModelFactory
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {

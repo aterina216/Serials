@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -25,14 +27,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.room.util.query
+import com.example.serials.ui.SerialCategories
 import com.example.serials.ui.components.Search
 import com.example.serials.ui.components.SerialCard
+import com.example.serials.ui.components.Tabs
 import com.example.serials.ui.components.TopBar
 import com.example.serials.ui.theme.Pink40
 import com.example.serials.ui.theme.Pink80
@@ -55,12 +61,29 @@ fun HomeScreen(
     val serialList by viewModel._serialList.collectAsState()
     val searchResult by viewModel.searchResult.collectAsState()
 
+    val selectedCategory by viewModel._currntCategory.collectAsState()
+
+    val categories = remember { SerialCategories.values().toList() }
+
+    val listState = rememberLazyListState()
+
+    val hasMore by viewModel.hasMore.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    val hasMoreSearch by viewModel.hasMoreSearch.collectAsState()
+    val isLoadingSearch by viewModel.isLoadingSearch.collectAsState()
+
     // Решаем, какой список показывать
     val itemsToShow = if (searchText.isNotBlank()) {
         searchResult  // Показываем результаты поиска
     } else {
         serialList    // Показываем все сериалы
     }
+
+    LaunchedEffect(selectedCategory) {
+        viewModel.loadSerialsFromCategory(selectedCategory)
+    }
+
 
     // Дебаунс для поиска (чтобы не спамить API на каждый символ)
     LaunchedEffect(searchText) {
@@ -70,6 +93,35 @@ fun HomeScreen(
         } else {
             // Если строка пустая - очищаем результаты поиска
             viewModel.searchSerials("")
+        }
+    }
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.layoutInfo
+        }.collect {
+            layoutInfo ->
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+
+            Log.d("PAGINATION", "Прокрутка: lastIndex=${lastVisibleItem?.index}, total=$totalItems, hasMore=$hasMore, isLoading=$isLoading")
+
+            if(lastVisibleItem != null
+                && totalItems > 0 &&
+                lastVisibleItem.index >= totalItems - 2)
+                {
+
+                if(searchText.isBlank()) {
+                    if(hasMore && !isLoading)
+                    Log.d("PAGINATION", "✅ Загружаем следующую страницу!")
+                    viewModel.loadNextPage()
+                }
+                else {
+                   if(hasMoreSearch && !isLoadingSearch) {
+                       viewModel.searchSerials(searchText, true)
+                   }
+                }
+            }
         }
     }
 
@@ -83,7 +135,8 @@ fun HomeScreen(
         if (serialList.isEmpty() && searchText.isBlank()) {
             // Показываем загрузку только если нет сериалов И нет поиска
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(paddingValues),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -131,6 +184,7 @@ fun HomeScreen(
                             }
                         }
                     }
+
                     itemsToShow.isEmpty() -> {
                         Box(
                             modifier = Modifier
@@ -141,8 +195,19 @@ fun HomeScreen(
                             Text("Нет сериалов для отображения", color = Color.Gray)
                         }
                     }
+
                     else -> {
-                        LazyColumn {
+                        if (searchText.isBlank() && searchResult.isEmpty()) {
+                            Tabs(
+                                categories = categories,
+                                selectedCategory = selectedCategory,
+                                onCategorySelected = { category ->
+                                    viewModel.loadSerialsFromCategory(category)
+                                },
+                                modifier = Modifier
+                            )
+                        }
+                        LazyColumn(state = listState) {
                             items(itemsToShow) { serial ->
                                 SerialCard(serial, controller)
                             }

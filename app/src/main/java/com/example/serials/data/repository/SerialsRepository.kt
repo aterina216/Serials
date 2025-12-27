@@ -30,9 +30,9 @@ class SerialsRepository(
         }
     }
 
-    suspend fun loadSerialsFromApi(): List<SerialEntity> {
+    suspend fun loadSerialsFromApi(page: Int = 1): List<SerialEntity> {
         Log.d("Repository", "🌐 Начинаем загрузку из API")
-        val response = api.get2025Series()
+        val response = api.get2025Series(page = page)
         return try {
             if (response.Response == "True") {
                 Log.d("Repository", "✅ API ответ успешен, сериалов: ${response.Search?.size ?: 0}")
@@ -80,9 +80,9 @@ class SerialsRepository(
 
     }
 
-    suspend fun searchSeries(query: String): List<SerialEntity> {
+    suspend fun searchSeries(query: String, page: Int = 1): List<SerialEntity> {
         return try {
-            val result = api.searchSeries(searchQuery = query)
+            val result = api.searchSeries(searchQuery = query, page = page)
             if (result.Response == "True") {
                 val entities = result.Search?.map { serial ->
                     mapper.convertSerialOMDBFromEntity(serial)
@@ -93,6 +93,23 @@ class SerialsRepository(
             }
         } catch (e: Exception) {
             Log.e("Repository", "❌ Ошибка поиска: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun loadSerialsFromCategories(category: String,
+                                          page: Int = 1): List<SerialEntity> {
+        return try {
+            val result = api.loadserialsFromCategories(category = category, page = page)
+            if (result.Response == "True") {
+                val entities = result.Search?.map { serial ->
+                    mapper.convertSerialOMDBFromEntity(serial)
+                } ?: emptyList()
+                entities
+            }
+            else emptyList()
+        }
+        catch (e: Exception) {
             emptyList()
         }
     }
