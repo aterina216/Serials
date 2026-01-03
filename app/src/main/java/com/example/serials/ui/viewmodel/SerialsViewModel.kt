@@ -61,24 +61,10 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
             } catch (e: Exception) {
                 Log.e("ViewModel", "❌ Ошибка загрузки деталей", e)
                 println("Ошибка: ${e.message}")
-                loadSerialsFromDB()
             }
         }
     }
-    fun loadSerialsFromDB() {
-        Log.d("ViewModel", "🔄 loadSerialsFromDB() вызван")
-        viewModelScope.launch {
-            try {
-                val data = repository.getSerialsFromRepo()
-                Log.d("ViewModel", "📊 Получено данных: ${data.size}")
-                serialsList.value = data
-                Log.d("ViewModel", "✅ StateFlow обновлен")
-            }
-            catch (e: Exception) {
-                Log.e("ViewModel", "💥 Ошибка в ViewModel: ${e.message}")
-            }
-        }
-    }
+
 
     fun searchSerials (query: String, loadMore: Boolean = false) {
         Log.d("SEARCH", "searchSerials: query='$query', loadMore=$loadMore, page=${currentSearchPage.value}")

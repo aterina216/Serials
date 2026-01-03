@@ -19,4 +19,8 @@ interface SerialDao {
 
     @Query("SELECT * FROM serials")
     fun getSerilals(): Flow<List<SerialEntity>>
+
+    @Query("SELECT * FROM serials WHERE category = :category")
+    suspend fun getSerialsFromCategory(category: String): List<SerialEntity>
+
 }

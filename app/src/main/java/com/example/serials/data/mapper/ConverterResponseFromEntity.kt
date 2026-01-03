@@ -5,12 +5,14 @@ import com.example.serials.data.remote.dto.SerialOMDb
 
 class ConverterResponseFromEntity {
 
-    fun convertSerialOMDBFromEntity(serial: SerialOMDb): SerialEntity {
+    fun convertSerialOMDBFromEntity(serial: SerialOMDb,
+                                    category: String? = null): SerialEntity {
         return SerialEntity(
             Poster = serial.Poster,
             Title = serial.Title,
             Type = serial.Type,
             Year = serial.Year,
-            imdbID = serial.imdbID)
+            imdbID = serial.imdbID,
+            category = category)
     }
 }

@@ -11,5 +11,6 @@ data class SerialEntity(
     val Title: String,
     val Type: String,
     val Year: String,
-    val imdbID: String
+    val imdbID: String,
+    var category: String? = null
 )

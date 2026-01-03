@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.example.serials.data.db.dao.SerialDao
 import com.example.serials.data.db.entity.SerialEntity
 
-@Database(entities = [SerialEntity::class], version = 1, exportSchema = false)
+@Database(entities = [SerialEntity::class], version = 2, exportSchema = false)
 abstract class SerialsDatabase: RoomDatabase() {
 
     abstract fun dao(): SerialDao

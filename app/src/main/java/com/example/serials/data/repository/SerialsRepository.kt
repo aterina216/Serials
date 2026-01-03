@@ -17,27 +17,19 @@ class SerialsRepository(
     private val mapper: ConverterResponseFromEntity
 ) {
 
-    suspend fun loadSerialsFromDb(): List<SerialEntity> {
-
-        return try {
-            Log.d("Repository", "🔍 Начинаем загрузку из БД")
-            val serialsFromDb = dao.getSerilals()
-            Log.d("Repository", "📀 Получено из БД: ${serialsFromDb} сериалов")
-            return serialsFromDb.first()
-        } catch (e: Exception) {
-            Log.e("Repository", "❌ Ошибка БД: ${e.message}")
-            emptyList()
-        }
-    }
 
     suspend fun loadSerialsFromApi(page: Int = 1): List<SerialEntity> {
+        Log.d("CACHE_DEBUG", "🔄 Начало загрузки NEW, стр. $page")
+        val serials = dao.getSerialsFromCategory("NEW")
+
         Log.d("Repository", "🌐 Начинаем загрузку из API")
-        val response = api.get2025Series(page = page)
+
         return try {
+            val response = api.get2025Series(page = page)
             if (response.Response == "True") {
                 Log.d("Repository", "✅ API ответ успешен, сериалов: ${response.Search?.size ?: 0}")
                 val entities = response.Search.map { serial ->
-                    mapper.convertSerialOMDBFromEntity(serial)
+                    mapper.convertSerialOMDBFromEntity(serial, "NEW")
                 } ?: emptyList()
 
                 Log.d("Repository", "💾 Сохраняем в БД: ${entities.size} сериалов")
@@ -48,21 +40,9 @@ class SerialsRepository(
                 emptyList()
             }
         } catch (e: Exception) {
-            Log.e("Repository", "💥 Ошибка сети: ${e.message}")
-            println("${e.message}")
-            emptyList()
-        }
-    }
-
-    suspend fun getSerialsFromRepo(): List<SerialEntity> {
-        Log.d("Repository", "🔄 getSerialsFromRepo() вызван")
-        val serialFromDB = loadSerialsFromDb()
-        if (serialFromDB.isNotEmpty()) {
-            Log.d("Repository", "🎯 Возвращаем данные из БД")
-            return serialFromDB
-        } else {
-            Log.d("Repository", "🔄 БД пуста, загружаем из API")
-            return loadSerialsFromApi()
+            Log.e("CACHE_DEBUG", "💥 Сетевая ошибка: ${e.message}")
+            Log.d("CACHE_DEBUG", "🆘 Возвращаем кэш при ошибке: ${serials.size} элементов")
+            return serials
         }
     }
 
@@ -99,18 +79,26 @@ class SerialsRepository(
 
     suspend fun loadSerialsFromCategories(category: String,
                                           page: Int = 1): List<SerialEntity> {
+        Log.d("CACHE_DEBUG", "🔄 Начало загрузки категории: $category, стр. $page")
+        val cache = dao.getSerialsFromCategory(category)
+        Log.d("CACHE_DEBUG", "📊 Кэш в БД для '$category': ${cache.size} элементов")
+
         return try {
+
             val result = api.loadserialsFromCategories(category = category, page = page)
             if (result.Response == "True") {
                 val entities = result.Search?.map { serial ->
-                    mapper.convertSerialOMDBFromEntity(serial)
+                    mapper.convertSerialOMDBFromEntity(serial, category)
                 } ?: emptyList()
+                dao.insertSerialsToDB(entities)
                 entities
             }
             else emptyList()
         }
         catch (e: Exception) {
-            emptyList()
+            Log.e("CACHE_DEBUG", "💥 Сетевая ошибка: ${e.message}")
+            Log.d("CACHE_DEBUG", "🆘 Возвращаем кэш при ошибке: ${cache.size} элементов")
+            cache
         }
     }
 }
