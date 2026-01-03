@@ -91,7 +91,7 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
             Log.d("SEARCH", "Новый поиск или запрос изменился, сброс пагинации")
         }
 
-        if(!_hasMoreSearch.value || _isLoading.value) {
+        if(!_hasMoreSearch.value || _isLoadingSearch.value) {
             Log.d("SEARCH", "❌ Не загружаем: hasMore=${_hasMoreSearch.value}, isLoading=${_isLoadingSearch.value}")
             return
         }
@@ -160,7 +160,7 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
                 val page = currentPage.value
 
                 val result = when (category) {
-                    SerialCategories.NEW -> repository.loadSerialsFromApi(currentPage.value)
+                    SerialCategories.NEW -> repository.loadSerialsFromApi(page)
                     else -> {
                         val query = category.query
                         repository.loadSerialsFromCategories(query, page)
@@ -172,7 +172,7 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
 
                 currentPage.value = page + 1
 
-                _hasMore.value = result.size == 10 && page < 10
+                _hasMore.value = result.size == 10 && page <= 10
             }
             catch (e: Exception) {
                 Log.e("ViewModel", "Ошибка загрузки сериалов: ${e.message}")
