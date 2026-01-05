@@ -23,4 +23,21 @@ interface SerialDao {
     @Query("SELECT * FROM serials WHERE category = :category")
     suspend fun getSerialsFromCategory(category: String): List<SerialEntity>
 
+    @Query("UPDATE serials SET status = :status WHERE imdbID = :imdbId")
+    suspend fun updateSerialStatus(imdbId: String, status: String?)
+
+    @Query("SELECT status FROM serials WHERE imdbID = :id")
+    suspend fun getStatus(id: String): String?
+
+    @Query("SELECT * FROM serials WHERE status = :status")
+    suspend fun getSerialsByStatus(status: String?): List<SerialEntity>
+
+    @Query("SELECT COUNT(*) FROM serials")
+    suspend fun getTotalCount(): Int
+
+    @Query("SELECT * FROM serials WHERE imdbID = :imdbId")
+    suspend fun getSerialByImdbId(imdbId: String): SerialEntity?
+
+    @Query("SELECT imdbID FROM serials")
+    suspend fun getAllImdbIds(): List<String>
 }

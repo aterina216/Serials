@@ -58,7 +58,7 @@ fun Navigation(viewModel: SerialsViewModel) {
                 )
             }
             composable("favorites") {
-                FavoritesScreen()
+                FavoritesScreen(viewModel, navController)
             }
             composable("history") {
                 HistoryScreen()

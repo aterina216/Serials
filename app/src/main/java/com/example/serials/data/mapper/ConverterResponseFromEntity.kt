@@ -1,18 +1,35 @@
 package com.example.serials.data.mapper
 
 import com.example.serials.data.db.entity.SerialEntity
+import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.remote.dto.SerialOMDb
 
 class ConverterResponseFromEntity {
 
-    fun convertSerialOMDBFromEntity(serial: SerialOMDb,
-                                    category: String? = null): SerialEntity {
+    fun convertSerialOMDBFromEntity(
+        serial: SerialOMDb,
+        category: String? = null
+    ): SerialEntity {
         return SerialEntity(
             Poster = serial.Poster,
             Title = serial.Title,
             Type = serial.Type,
             Year = serial.Year,
             imdbID = serial.imdbID,
-            category = category)
+            category = category
+        )
     }
+
 }
+
+fun convertSerialEntityFromDetails(
+    serialDetails: SerialDetails,
+    currentStatus: String? = null
+) = SerialEntity(
+    Poster = serialDetails.Poster,
+    Title = serialDetails.Title,
+    Type = serialDetails.Type,
+    Year = serialDetails.Year,
+    imdbID = serialDetails.imdbID,
+    status = currentStatus
+)

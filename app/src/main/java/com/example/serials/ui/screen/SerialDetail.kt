@@ -38,11 +38,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.serials.data.mapper.convertSerialEntityFromDetails
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.ui.components.DetailRow
+import com.example.serials.ui.components.StatusDropdownButton
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import kotlinx.coroutines.delay
-import java.lang.StringBuilder
 
 @Composable
 fun SerialDetail(
@@ -56,24 +57,30 @@ fun SerialDetail(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val serialDetail by viewModel.currentserial.collectAsState()
+    val currentStatus by viewModel._currentStatus.collectAsState()
 
-    // Загружаем данные
+    LaunchedEffect(currentStatus) {
+        Log.d("DEBUG_UI", "Текущий статус обновился: $currentStatus")
+    }
+
     LaunchedEffect(imdbID) {
-        Log.d("DEBUG", "🚀 LaunchedEffect запущен для imdbID: $imdbID")
+        Log.d("DEBUG_UI", "Загрузка деталей для: $imdbID")
         delay(1000)
 
         if (imdbID.isNotBlank() && imdbID != "null") {
             try {
                 viewModel.loadSerialDetails(imdbID)
+                viewModel.loadSerialStatus(imdbID)
             } catch (e: Exception) {
                 errorMessage = "Ошибка загрузки: ${e.message}"
-                Log.e("DEBUG", "💥 Ошибка загрузки", e)
+                Log.e("DEBUG_UI", "💥 Ошибка загрузки", e)
             }
         } else {
             errorMessage = "ID сериала не указан"
         }
         isLoading = false
     }
+
 
     // UI в зависимости от состояния
     when {
@@ -126,13 +133,23 @@ fun SerialDetail(
         }
         else -> {
             // ТОЛЬКО ТЕПЕРЬ показываем данные
-            ShowSerialDetails(serialDetail!!)
+            ShowSerialDetails(serialDetail!!, viewModel)
         }
     }
 }
 
 @Composable
-fun ShowSerialDetails(details: SerialDetails) {
+fun ShowSerialDetails(details: SerialDetails,
+                      viewModel: SerialsViewModel) {
+    Log.d("DEBUG_UI", "ShowSerialDetails для: ${details.Title}")
+
+    LaunchedEffect(details.imdbID) {
+        Log.d("DEBUG_UI", "Загрузка статуса для: ${details.imdbID}")
+        viewModel.loadSerialStatus(details.imdbID)
+    }
+
+    val currentStatus by viewModel._currentStatus.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -148,6 +165,20 @@ fun ShowSerialDetails(details: SerialDetails) {
                     .height(300.dp),
                 contentScale = ContentScale.Crop
             )
+            val entity = convertSerialEntityFromDetails(details)
+
+            StatusDropdownButton(
+                currentStatus = currentStatus,
+                onStatusSelected = {
+                    newStatus ->
+                    Log.d("DEBUG_UI", "Пользователь выбрал статус: $newStatus для ${details.imdbID}")
+                    viewModel.updateSerialStatus(entity.imdbID,
+                        newStatus)
+                },
+                modifier = Modifier.padding(16.dp)
+                    .align(Alignment.End)
+            )
+
         } ?: run {
             Box(
                 modifier = Modifier

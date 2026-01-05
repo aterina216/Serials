@@ -44,6 +44,12 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
     val isLoadingSearch: StateFlow<Boolean> = _isLoadingSearch
     private var _currentSearchCategory = MutableStateFlow("")
 
+    private var currentStatus = MutableStateFlow<String?>(null)
+    val _currentStatus: StateFlow<String?> = currentStatus
+
+    private var favoriteSerials = MutableStateFlow<List<SerialEntity>>(emptyList())
+    val _favoriteSerials: StateFlow<List<SerialEntity>> = favoriteSerials
+
 
     init {
         Log.d("ViewModel", "🚀 ViewModel создан")
@@ -166,6 +172,38 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
             finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    fun updateSerialStatus(id: String, status: String?) {
+        Log.d("DEBUG_VM", "updateSerialStatus вызван: id=$id, status=$status")
+        viewModelScope.launch {
+            repository.updateSerialStatus(id, status)
+            currentStatus.value = status
+
+            repository.debugDatabase()
+        }
+    }
+
+    fun loadSerialStatus(id: String) {
+        Log.d("DEBUG_VM", "loadSerialStatus вызван для: $id")
+        viewModelScope.launch {
+            try {
+                val status = repository.getSerialStatus(id)
+                Log.d("DEBUG_VM", "Статус получен из репозитория: $status")
+                currentStatus.value = status
+            } catch (e: Exception) {
+                Log.e("DEBUG_VM", "Ошибка загрузки статуса", e)
+                currentStatus.value = null
+            }
+        }
+    }
+
+    fun getFavoriteSerials(status: String?) {
+        Log.d("DEBUG_VM", "getFavoriteSerials вызван для статуса: $status")
+        viewModelScope.launch {
+            favoriteSerials.value = repository.getSerialsFromStatus(status)
+            Log.d("DEBUG_VM", "Загружено избранных: ${favoriteSerials.value.size}")
         }
     }
 }
