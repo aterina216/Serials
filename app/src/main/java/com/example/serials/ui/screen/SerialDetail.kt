@@ -166,6 +166,11 @@ fun ShowSerialDetails(details: SerialDetails,
                 contentScale = ContentScale.Crop
             )
             val entity = convertSerialEntityFromDetails(details)
+            entity.watchedAt = System.currentTimeMillis()
+
+            LaunchedEffect(entity) {
+                viewModel.updateCurrentTime(entity.watchedAt, entity.imdbID)
+            }
 
             StatusDropdownButton(
                 currentStatus = currentStatus,

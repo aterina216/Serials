@@ -3,18 +3,13 @@ package com.example.serials.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.serials.data.db.entity.SerialEntity
-import com.example.serials.data.remote.api.RetrofitClient
 import com.example.serials.data.remote.dto.SerialDetails
-import com.example.serials.data.remote.dto.SerialOMDb
 import com.example.serials.data.repository.SerialsRepository
 import com.example.serials.ui.SerialCategories
-import com.example.serials.ui.components.SerialCard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.compose
 import kotlinx.coroutines.launch
 
 class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
@@ -49,6 +44,10 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
 
     private var favoriteSerials = MutableStateFlow<List<SerialEntity>>(emptyList())
     val _favoriteSerials: StateFlow<List<SerialEntity>> = favoriteSerials
+
+    private var _historySerials = MutableStateFlow<List<SerialEntity>>(emptyList())
+
+    val historySerials: StateFlow<List<SerialEntity>> = _historySerials
 
 
     init {
@@ -204,6 +203,25 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
         viewModelScope.launch {
             favoriteSerials.value = repository.getSerialsFromStatus(status)
             Log.d("DEBUG_VM", "Загружено избранных: ${favoriteSerials.value.size}")
+        }
+    }
+
+    fun updateCurrentTime(watchedAt: Long?, imdb: String){
+        viewModelScope.launch {
+            repository.updateCurrentTime(watchedAt, imdb)
+        }
+    }
+
+    fun loadHistorySerials() {
+        viewModelScope.launch {
+            _historySerials.value = repository.getHistorySerials()
+        }
+    }
+
+    fun clearHistory() {
+        viewModelScope.launch {
+            repository.clearHistory()
+            loadHistorySerials()
         }
     }
 }

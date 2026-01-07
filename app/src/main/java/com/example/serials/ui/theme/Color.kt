@@ -1,6 +1,7 @@
 package com.example.serials.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
@@ -15,4 +16,12 @@ val lightBlue = Color(0xFF8BA2CB)
 val Blue = Color(0xFF3C5D91)
 
 val Violet = Color(0xFFB684D0)
+
+val DarkViolet = Color(0xFF6650a4)
+
+val LightGray = Color(0xFF8BA2CB)
+
+val LightViolet = Color(0xFFD0BCFF)
+
+val Gray = Color(0xFF625b71)
 

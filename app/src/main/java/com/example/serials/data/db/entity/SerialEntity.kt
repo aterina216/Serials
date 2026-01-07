@@ -14,5 +14,6 @@ data class SerialEntity(
     val Type: String,
     val Year: String,
     var category: String? = null,
-    var status: String? = null
+    var status: String? = null,
+    var watchedAt: Long? = null
 )

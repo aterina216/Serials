@@ -167,7 +167,6 @@ fun HomeScreen(
                     }
                 )
 
-                // Показываем состояние поиска
                 when {
                     searchText.isNotBlank() && searchResult.isEmpty() -> {
                         Box(

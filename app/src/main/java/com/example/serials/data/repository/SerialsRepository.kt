@@ -5,6 +5,7 @@ import androidx.room.util.newStringBuilder
 import com.example.serials.data.db.dao.SerialDao
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.mapper.ConverterResponseFromEntity
+import com.example.serials.data.mapper.convertSerialEntityFromDetails
 import com.example.serials.data.remote.api.OMDbApi
 import com.example.serials.data.remote.dto.SerialDetails
 
@@ -58,14 +59,21 @@ class SerialsRepository(
         return try {
             val serialDetails = api.serialDetails(i = imbd)
             if (serialDetails.Response == "True") {
+
+                val entity = convertSerialEntityFromDetails(serialDetails)
+                val existing = dao.getSerialByImdbId(imbd)
+                if(existing == null) {
+                    dao.insertSerialToDB(entity)
+                }
+
                 serialDetails
             } else null
         } catch (e: Exception) {
             println("${e.message}")
             null
         }
-
     }
+
 
     suspend fun searchSeries(query: String, page: Int = 1): List<SerialEntity> {
         return try {
@@ -146,4 +154,12 @@ class SerialsRepository(
             Log.d("DEBUG_DB", "Сериал: ${serial.Title}, imdbID: ${serial.imdbID}, статус: ${serial.status}")
         }
     }
+
+    suspend fun updateCurrentTime(watchedAt: Long?, imdbID: String) {
+        dao.updateCurrentTime(imdbID, watchedAt)
+    }
+
+    suspend fun getHistorySerials(): List<SerialEntity> = dao.getHistorySerials()
+
+    suspend fun clearHistory() = dao.clearHistory()
 }
