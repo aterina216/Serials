@@ -1,6 +1,13 @@
 package com.example.serials.ui.screen
 
+import android.graphics.drawable.Icon
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,15 +20,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Badge
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,18 +41,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.example.serials.R
 import com.example.serials.data.mapper.convertSerialEntityFromDetails
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.ui.components.DetailRow
 import com.example.serials.ui.components.StatusDropdownButton
+import com.example.serials.ui.theme.Purple40
+import com.example.serials.ui.theme.Purple80
 import com.example.serials.ui.viewmodel.SerialsViewModel
+import com.example.serials.utils.DownloadCover.downloadCover
 import kotlinx.coroutines.delay
 
 @Composable
@@ -149,145 +166,217 @@ fun ShowSerialDetails(details: SerialDetails,
     }
 
     val currentStatus by viewModel._currentStatus.collectAsState()
+    val scrollState = rememberScrollState()
+    var fabVisible by remember { mutableStateOf(true) }
+    var previosScroll by remember { mutableStateOf(0) }
+    val context = LocalContext.current
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        // Постер
-        details.Poster?.let { poster ->
-            AsyncImage(
-                model = poster,
-                contentDescription = details.Title,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp),
-                contentScale = ContentScale.Crop
-            )
-            val entity = convertSerialEntityFromDetails(details)
-            entity.watchedAt = System.currentTimeMillis()
+    LaunchedEffect(scrollState.value) {
+        val currentScroll = scrollState.value
+        val scrollingDown = currentScroll > previosScroll
 
-            LaunchedEffect(entity) {
-                viewModel.updateCurrentTime(entity.watchedAt, entity.imdbID)
-            }
-
-            StatusDropdownButton(
-                currentStatus = currentStatus,
-                onStatusSelected = {
-                    newStatus ->
-                    Log.d("DEBUG_UI", "Пользователь выбрал статус: $newStatus для ${details.imdbID}")
-                    viewModel.updateSerialStatus(entity.imdbID,
-                        newStatus)
-                },
-                modifier = Modifier.padding(16.dp)
-                    .align(Alignment.End)
-            )
-
-        } ?: run {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .background(Color.Gray.copy(alpha = 0.3f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Нет постера", color = Color.Gray)
-            }
+        if (scrollingDown && currentScroll > 50) {
+            fabVisible = false
+        } else if (!scrollingDown) {
+            fabVisible = true
         }
+        previosScroll = currentScroll
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
 
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
         ) {
-            // Заголовок и рейтинг
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            // Постер
+            details.Poster?.let { poster ->
+                AsyncImage(
+                    model = poster,
+                    contentDescription = details.Title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp),
+                    contentScale = ContentScale.Crop
+                )
+                val entity = convertSerialEntityFromDetails(details)
+                entity.watchedAt = System.currentTimeMillis()
+
+                LaunchedEffect(entity) {
+                    viewModel.updateCurrentTime(entity.watchedAt, entity.imdbID)
+                }
+
+                StatusDropdownButton(
+                    currentStatus = currentStatus,
+                    onStatusSelected = { newStatus ->
+                        Log.d(
+                            "DEBUG_UI",
+                            "Пользователь выбрал статус: $newStatus для ${details.imdbID}"
+                        )
+                        viewModel.updateSerialStatus(
+                            entity.imdbID,
+                            newStatus
+                        )
+                    },
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.End)
+                )
+
+            } ?: run {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .background(Color.Gray.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Нет постера", color = Color.Gray)
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
             ) {
-                Text(
-                    text = details.Title ?: "Без названия",
-                    style = MaterialTheme.typography.h3,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
-                )
-
-                details.imdbRating?.let { rating ->
-                    Badge(
-                        containerColor = MaterialTheme.colors.primary,
-                        content = {
-                            Text(rating, color = Color.White, fontWeight = FontWeight.Bold)
-                        }
+                // Заголовок и рейтинг
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = details.Title ?: "Без названия",
+                        style = MaterialTheme.typography.h3,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
                     )
-                }
-            }
 
-            // Мета-информация
-            Text(
-                text = buildString {
-                    details.Year?.let { append("$it • ") }
-                    details.Runtime?.takeIf { it != "N/A" }?.let { append("$it • ") }
-                    details.Genre?.takeIf { it != "N/A" }?.let { append(it) }
-                    // Убираем последний " • " если он есть
-                    if (endsWith(" • ")) delete(length - 3, length)
-                },
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Сюжет
-            details.Plot?.takeIf { it != "N/A" && it.isNotEmpty() }?.let { plot ->
-                Text(
-                    text = plot,
-                    style = MaterialTheme.typography.body2,
-                    lineHeight = 24.sp
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            // Все детали
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                details.Director?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Режиссер", it)
-                }
-
-                details.Writer?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Сценарист", it)
-                }
-
-                details.Actors?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Актеры", it)
-                }
-
-                details.Country?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Страна", it)
-                }
-
-                details.Language?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Язык", it)
-                }
-
-                details.Awards?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Награды", it)
-                }
-
-                if (details.Type == "series") {
-                    details.totalSeasons?.takeIf { it.isNotEmpty() }?.let {
-                        DetailRow("Сезонов", it)
+                    details.imdbRating?.let { rating ->
+                        Badge(
+                            containerColor = MaterialTheme.colors.primary,
+                            content = {
+                                Text(rating, color = Color.White, fontWeight = FontWeight.Bold)
+                            }
+                        )
                     }
                 }
 
-                details.Rated?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Рейтинг", it)
+                // Мета-информация
+                Text(
+                    text = buildString {
+                        details.Year?.let { append("$it • ") }
+                        details.Runtime?.takeIf { it != "N/A" }?.let { append("$it • ") }
+                        details.Genre?.takeIf { it != "N/A" }?.let { append(it) }
+                        // Убираем последний " • " если он есть
+                        if (endsWith(" • ")) delete(length - 3, length)
+                    },
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onSurface
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Сюжет
+                details.Plot?.takeIf { it != "N/A" && it.isNotEmpty() }?.let { plot ->
+                    Text(
+                        text = plot,
+                        style = MaterialTheme.typography.body2,
+                        lineHeight = 24.sp
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                details.Released?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
-                    DetailRow("Дата выхода", it)
+                // Все детали
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    details.Director?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Режиссер", it)
+                    }
+
+                    details.Writer?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Сценарист", it)
+                    }
+
+                    details.Actors?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Актеры", it)
+                    }
+
+                    details.Country?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Страна", it)
+                    }
+
+                    details.Language?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Язык", it)
+                    }
+
+                    details.Awards?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Награды", it)
+                    }
+
+                    if (details.Type == "series") {
+                        details.totalSeasons?.takeIf { it.isNotEmpty() }?.let {
+                            DetailRow("Сезонов", it)
+                        }
+                    }
+
+                    details.Rated?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Рейтинг", it)
+                    }
+
+                    details.Released?.takeIf { it != "N/A" && it.isNotEmpty() }?.let {
+                        DetailRow("Дата выхода", it)
+                    }
+
                 }
             }
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+
+        AnimatedVisibility(
+            visible = fabVisible,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    Log.d("Download", "Скачивание постера для: ${details.Title}")
+                    downloadCover(
+                        context = context,
+                        imageUrl = details.Poster,
+                        title = details.Title
+                    )
+                    Toast.makeText(context, "Начинаем скачивать постер...", Toast.LENGTH_SHORT).show() // Toast.makeText(context, "Начинаем скачивать постер...", Toast.LENGTH_SHORT).show(")
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(R.drawable.outline_save_24),
+                        contentDescription = "Скачать постер",
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                text = {
+                    Text(
+                        "Скачать постер",
+                        style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                },
+                containerColor = Purple80.copy(alpha = 0.9f),
+                contentColor = Color.White,
+                modifier = Modifier.shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(16.dp),
+                    ambientColor = Purple80.copy(alpha = 0.5f),
+                    spotColor = Purple40.copy(alpha = 0.3f)
+                )
+            )
         }
     }
 }
