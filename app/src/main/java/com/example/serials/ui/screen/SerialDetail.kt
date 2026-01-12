@@ -1,13 +1,12 @@
 package com.example.serials.ui.screen
 
-import android.graphics.drawable.Icon
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -54,14 +52,18 @@ import coil.compose.AsyncImage
 import com.example.serials.R
 import com.example.serials.data.mapper.convertSerialEntityFromDetails
 import com.example.serials.data.remote.dto.SerialDetails
+import com.example.serials.ui.components.DateDialog
 import com.example.serials.ui.components.DetailRow
 import com.example.serials.ui.components.StatusDropdownButton
+import com.example.serials.ui.components.TimeDialog
 import com.example.serials.ui.theme.Purple40
 import com.example.serials.ui.theme.Purple80
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import com.example.serials.utils.DownloadCover.downloadCover
+import com.example.serials.utils.Reminder.showReminder
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SerialDetail(
     viewModel: SerialsViewModel,
@@ -75,6 +77,7 @@ fun SerialDetail(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val serialDetail by viewModel.currentserial.collectAsState()
     val currentStatus by viewModel._currentStatus.collectAsState()
+
 
     LaunchedEffect(currentStatus) {
         Log.d("DEBUG_UI", "Текущий статус обновился: $currentStatus")
@@ -113,6 +116,7 @@ fun SerialDetail(
                 }
             }
         }
+
         errorMessage != null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -130,6 +134,7 @@ fun SerialDetail(
                 }
             }
         }
+
         serialDetail == null -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -148,6 +153,7 @@ fun SerialDetail(
                 }
             }
         }
+
         else -> {
             // ТОЛЬКО ТЕПЕРЬ показываем данные
             ShowSerialDetails(serialDetail!!, viewModel)
@@ -155,9 +161,12 @@ fun SerialDetail(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ShowSerialDetails(details: SerialDetails,
-                      viewModel: SerialsViewModel) {
+fun ShowSerialDetails(
+    details: SerialDetails,
+    viewModel: SerialsViewModel
+) {
     Log.d("DEBUG_UI", "ShowSerialDetails для: ${details.Title}")
 
     LaunchedEffect(details.imdbID) {
@@ -170,6 +179,10 @@ fun ShowSerialDetails(details: SerialDetails,
     var fabVisible by remember { mutableStateOf(true) }
     var previosScroll by remember { mutableStateOf(0) }
     val context = LocalContext.current
+    var showDateDialog by remember { mutableStateOf(false) }
+    var date: Long? by remember { mutableStateOf(0) }
+    var showTime by remember { mutableStateOf(false) }
+    var time: Long? by remember { mutableStateOf(0) }
 
     LaunchedEffect(scrollState.value) {
         val currentScroll = scrollState.value
@@ -344,38 +357,105 @@ fun ShowSerialDetails(details: SerialDetails,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    Log.d("Download", "Скачивание постера для: ${details.Title}")
-                    downloadCover(
-                        context = context,
-                        imageUrl = details.Poster,
-                        title = details.Title
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        Log.d("Download", "Скачивание постера для: ${details.Title}")
+                        downloadCover(
+                            context = context,
+                            imageUrl = details.Poster,
+                            title = details.Title
+                        )
+                        Toast.makeText(
+                            context,
+                            "Начинаем скачивать постер...",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show() // Toast.makeText(context, "Начинаем скачивать постер...", Toast.LENGTH_SHORT).show(")
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_save_24),
+                            contentDescription = "Скачать постер",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    text = {
+                        Text(
+                            "Скачать постер",
+                            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                    },
+                    containerColor = Purple80.copy(alpha = 0.9f),
+                    contentColor = Color.White,
+                    modifier = Modifier.shadow(
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(16.dp),
+                        ambientColor = Purple80.copy(alpha = 0.5f),
+                        spotColor = Purple40.copy(alpha = 0.3f)
                     )
-                    Toast.makeText(context, "Начинаем скачивать постер...", Toast.LENGTH_SHORT).show() // Toast.makeText(context, "Начинаем скачивать постер...", Toast.LENGTH_SHORT).show(")
-                },
-                icon = {
-                    Icon(
-                        painter = painterResource(R.drawable.outline_save_24),
-                        contentDescription = "Скачать постер",
-                        modifier = Modifier.size(24.dp)
-                    )
-                },
-                text = {
-                    Text(
-                        "Скачать постер",
-                        style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                },
-                containerColor = Purple80.copy(alpha = 0.9f),
-                contentColor = Color.White,
-                modifier = Modifier.shadow(
-                    elevation = 12.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    ambientColor = Purple80.copy(alpha = 0.5f),
-                    spotColor = Purple40.copy(alpha = 0.3f)
                 )
+
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        showDateDialog = true
+                    },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.outline_calendar_month_24),
+                            contentDescription = "Установить напоминание",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    text = {
+                        Text(
+                            "Установить напоминание",
+                            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Medium
+                        )
+                    },
+                    containerColor = Purple80.copy(alpha = 0.9f),
+                    contentColor = Color.White,
+                    modifier = Modifier.shadow(
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(16.dp),
+                        ambientColor = Purple80.copy(alpha = 0.5f),
+                        spotColor = Purple40.copy(alpha = 0.3f)
+                    )
+                )
+            }
+        }
+        if (showDateDialog) {
+            DateDialog(
+                onDateSelected = {
+                    date = it
+                    Log.d("DEBUG", "Выбрана дата: $date")
+                    showDateDialog = false
+                    showTime = true
+                },
+                onDismiss = {
+                    showDateDialog = false
+                }
+            )
+        }
+        if (showTime) {
+            TimeDialog(
+                selectedDateMillis = date!!,
+                onTimeSelected = {
+                    time = it
+                    Log.d("DEBUG", "Выбрано время: $time")
+                    showReminder(
+                        context,
+                        serialDetails = details,
+                        time = time!!,
+                    )
+                },
+                onDismiss = { showTime = false }
             )
         }
     }
