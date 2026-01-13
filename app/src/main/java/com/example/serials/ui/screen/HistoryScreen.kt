@@ -256,8 +256,7 @@ fun HistoryScreen(viewModel: SerialsViewModel, navController: NavController) {
             } else {
 
                 Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 80.dp)) {
+                    .fillMaxSize()) {
 
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
@@ -265,7 +264,7 @@ fun HistoryScreen(viewModel: SerialsViewModel, navController: NavController) {
                             start = 10.dp,
                             end = 10.dp,
                             top = 10.dp,
-                            bottom = 80.dp
+                            bottom = 16.dp
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -277,7 +276,7 @@ fun HistoryScreen(viewModel: SerialsViewModel, navController: NavController) {
                     if (historySerials.isNotEmpty()) {
                         Box(
                             modifier = Modifier.align(Alignment.BottomEnd)
-                                .padding(24.dp, end = 24.dp)
+                                .padding(16.dp, end = 16.dp)
                         ) {
 
                             Box(modifier = Modifier.size(56.dp)

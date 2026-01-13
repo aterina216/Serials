@@ -33,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -183,6 +184,9 @@ fun ShowSerialDetails(
     var date: Long? by remember { mutableStateOf(0) }
     var showTime by remember { mutableStateOf(false) }
     var time: Long? by remember { mutableStateOf(0) }
+    val calendarVisible by remember(currentStatus) {
+        derivedStateOf { currentStatus == "want_to_watch" }
+    }
 
     LaunchedEffect(scrollState.value) {
         val currentScroll = scrollState.value
@@ -195,6 +199,8 @@ fun ShowSerialDetails(
         }
         previosScroll = currentScroll
     }
+
+
     Box(modifier = Modifier.fillMaxSize()) {
 
         Column(
@@ -401,33 +407,35 @@ fun ShowSerialDetails(
                     )
                 )
 
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        showDateDialog = true
-                    },
-                    icon = {
-                        Icon(
-                            painter = painterResource(R.drawable.outline_calendar_month_24),
-                            contentDescription = "Установить напоминание",
-                            modifier = Modifier.size(24.dp)
+                if (calendarVisible) {
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            showDateDialog = true
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.outline_calendar_month_24),
+                                contentDescription = "Установить напоминание",
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        text = {
+                            Text(
+                                "Установить напоминание",
+                                style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        },
+                        containerColor = Purple80.copy(alpha = 0.9f),
+                        contentColor = Color.White,
+                        modifier = Modifier.shadow(
+                            elevation = 12.dp,
+                            shape = RoundedCornerShape(16.dp),
+                            ambientColor = Purple80.copy(alpha = 0.5f),
+                            spotColor = Purple40.copy(alpha = 0.3f)
                         )
-                    },
-                    text = {
-                        Text(
-                            "Установить напоминание",
-                            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                    },
-                    containerColor = Purple80.copy(alpha = 0.9f),
-                    contentColor = Color.White,
-                    modifier = Modifier.shadow(
-                        elevation = 12.dp,
-                        shape = RoundedCornerShape(16.dp),
-                        ambientColor = Purple80.copy(alpha = 0.5f),
-                        spotColor = Purple40.copy(alpha = 0.3f)
                     )
-                )
+                }
             }
         }
         if (showDateDialog) {

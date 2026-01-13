@@ -44,7 +44,7 @@ interface SerialDao {
     @Query("UPDATE serials SET watchedAt = :wathchedAt WHERE imdbID = :imdbId")
     suspend fun updateCurrentTime(imdbId: String, wathchedAt: Long?)
 
-    @Query("SELECT * FROM serials WHERE watchedAt IS NOT NULL")
+    @Query("SELECT * FROM serials WHERE watchedAt IS NOT NULL ORDER BY watchedAt DESC LIMIT 100")
     suspend fun getHistorySerials(): List<SerialEntity>
 
     @Query("UPDATE serials SET watchedAt = NULL")
