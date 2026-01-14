@@ -3,6 +3,7 @@ package com.example.serials.data.repository
 import android.util.Log
 import androidx.room.util.newStringBuilder
 import com.example.serials.data.db.dao.SerialDao
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.mapper.ConverterResponseFromEntity
 import com.example.serials.data.mapper.convertSerialEntityFromDetails
@@ -162,4 +163,24 @@ class SerialsRepository(
     suspend fun getHistorySerials(): List<SerialEntity> = dao.getHistorySerials()
 
     suspend fun clearHistory() = dao.clearHistory()
+
+    suspend fun addReminderBook(reminderEntity: ReminderEntity) {
+        return dao.addReminderBook(reminderEntity)
+    }
+
+    suspend fun deleteInactiveReminders() = dao.deleteInactiveReminders()
+
+    suspend fun getReminders(): List<ReminderEntity> = dao.getActiveReminders()
+
+    suspend fun deactivateExpiredReminders(currentTime: Long) {
+        dao.deactivateExpiredReminders(currentTime)
+    }
+
+    suspend fun deleteNotification(id: String) {
+        dao.deleteReminder(id)
+    }
+
+    suspend fun updateReminderTime(id: String, time: Long) {
+        dao.updateReminderTime(id, time)
+    }
 }

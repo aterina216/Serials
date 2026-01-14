@@ -1,5 +1,6 @@
 package com.example.serials.data.mapper
 
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.remote.dto.SerialOMDb
@@ -33,3 +34,15 @@ fun convertSerialEntityFromDetails(
     imdbID = serialDetails.imdbID,
     status = currentStatus
 )
+
+fun convertSerialDetailsToReminderEntity(details: SerialDetails, time: Long): ReminderEntity {
+    return ReminderEntity(
+        imdbID = details.imdbID,
+        Poster = details.Poster,
+        Title = details.Title,
+        Type = details.Type,
+        Year = details.Year,
+        isActive = true,
+        time = time
+    )
+}

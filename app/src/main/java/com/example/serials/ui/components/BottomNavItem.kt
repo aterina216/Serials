@@ -34,4 +34,10 @@ sealed class BottomNavItem(
         title = "История",
         image = R.drawable.time
     )
+
+    object Reminders: BottomNavItem(
+            route = "reminders",
+            title = "Напоминания",
+            image = R.drawable.baseline_access_alarm_24
+    )
 }

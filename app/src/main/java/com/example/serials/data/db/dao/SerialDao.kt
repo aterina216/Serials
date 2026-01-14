@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.db.entity.SerialEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,4 +50,22 @@ interface SerialDao {
 
     @Query("UPDATE serials SET watchedAt = NULL")
     suspend fun clearHistory()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addReminderBook(reminderEntity: ReminderEntity)
+
+    @Query("SELECT * FROM reminders WHERE isActive = 1")
+    suspend fun getActiveReminders(): List<ReminderEntity>
+
+    @Query("DELETE FROM reminders WHERE isActive = 0")
+    suspend fun deleteInactiveReminders()
+
+    @Query("UPDATE reminders SET isActive = 0 WHERE time < :currentTime AND isActive = 1")
+    suspend fun deactivateExpiredReminders(currentTime: Long)
+
+    @Query("DELETE FROM reminders WHERE imdbID = :imdbId")
+    suspend fun deleteReminder(imdbId: String)
+
+    @Query("UPDATE reminders SET time = :time WHERE imdbID = :imdbId")
+    suspend fun updateReminderTime(imdbId: String, time: Long)
 }

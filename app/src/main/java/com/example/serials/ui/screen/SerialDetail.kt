@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.serials.R
+import com.example.serials.data.mapper.convertSerialDetailsToReminderEntity
 import com.example.serials.data.mapper.convertSerialEntityFromDetails
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.ui.components.DateDialog
@@ -451,17 +452,22 @@ fun ShowSerialDetails(
                 }
             )
         }
-        if (showTime) {
+        if (showTime && date != null) {
             TimeDialog(
                 selectedDateMillis = date!!,
                 onTimeSelected = {
                     time = it
                     Log.d("DEBUG", "Выбрано время: $time")
-                    showReminder(
-                        context,
-                        serialDetails = details,
-                        time = time!!,
-                    )
+                    if (time != null) {
+                        val reminder = convertSerialDetailsToReminderEntity(details, time!!)
+                        showReminder(
+                            context,
+                            serialDetails = reminder,
+                            time = time!!,
+                        )
+
+                        viewModel.addReminder(reminder)
+                    }
                 },
                 onDismiss = { showTime = false }
             )

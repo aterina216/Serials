@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.paging.Config
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.services.ReminderReceiver
 
@@ -15,10 +17,10 @@ object Reminder {
 
     fun showReminder(
         context: Context,
-        serialDetails: SerialDetails,
+        serialDetails: ReminderEntity,
         time: Long
     ) {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             (!PermissionHelper.hasNotificationPermission(context))
             {
                 val intent = Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
@@ -62,12 +64,36 @@ object Reminder {
 
         Log.d(TAG, "PendingIntent создан: $pendingIntent")
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pendingIntent)
             Log.d(TAG, "Будильник установлен через setExactAndAllowWhileIdle")
-        }
-        else {
+        } else {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, time, pendingIntent)
+        }
+    }
+
+    fun cancelReminder(context: Context, imdbId: String) {
+        Log.d(TAG, "=== ОТМЕНА НАПОМИНАНИЯ ===")
+        Log.d(TAG, "Отменяем напоминание для imdbID: $imdbId")
+
+        val requestCode = (imdbId.hashCode() and 0xffff).toInt()
+
+        val intent = Intent(context, ReminderReceiver::class.java).apply {
+            action = "com.example.serials.REMINDER_ACTION"
+            putExtra("imdbId", imdbId)
+        }
+
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        if(pendingIntent != null) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(pendingIntent)
+            pendingIntent.cancel()
         }
     }
 }

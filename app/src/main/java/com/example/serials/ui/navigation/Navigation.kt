@@ -1,6 +1,8 @@
 package com.example.serials.ui.navigation
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -18,8 +20,10 @@ import androidx.navigation.navArgument
 import com.example.serials.ui.components.BottomBar
 import com.example.serials.ui.screen.FavoritesScreen
 import com.example.serials.ui.screen.HistoryScreen
+import com.example.serials.ui.screen.RemindersScreen
 import com.example.serials.ui.screen.SerialDetail
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(viewModel: SerialsViewModel) {
     val navController = rememberNavController()
@@ -62,6 +66,9 @@ fun Navigation(viewModel: SerialsViewModel) {
             }
             composable("history") {
                 HistoryScreen(viewModel, navController)
+            }
+            composable("reminders") {
+                RemindersScreen(viewModel)
             }
         }
     }

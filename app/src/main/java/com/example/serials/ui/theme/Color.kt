@@ -25,3 +25,5 @@ val LightViolet = Color(0xFFD0BCFF)
 
 val Gray = Color(0xFF625b71)
 
+val DarkGray = Color(0xFF2D3436)
+

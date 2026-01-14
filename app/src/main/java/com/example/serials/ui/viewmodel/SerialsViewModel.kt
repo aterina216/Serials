@@ -3,6 +3,7 @@ package com.example.serials.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.repository.SerialsRepository
@@ -10,6 +11,7 @@ import com.example.serials.ui.SerialCategories
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 
 class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
@@ -49,10 +51,14 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
 
     val historySerials: StateFlow<List<SerialEntity>> = _historySerials
 
+    private var _reminders = MutableStateFlow<List<ReminderEntity>>(emptyList())
+    val reminders: StateFlow<List<ReminderEntity>> = _reminders
 
     init {
         Log.d("ViewModel", "🚀 ViewModel создан")
         loadSerialsFromCategory(currentCategory.value)
+        loadReminders()
+        cleanupExpiredReminders()
     }
 
     fun loadSerialDetails(imdb: String) {
@@ -222,6 +228,49 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
         viewModelScope.launch {
             repository.clearHistory()
             loadHistorySerials()
+        }
+    }
+
+    fun addReminder(reminderEntity: ReminderEntity) {
+        viewModelScope.launch {
+            repository.addReminderBook(reminderEntity)
+        }
+    }
+
+    fun cleanupExpiredReminders() {
+        viewModelScope.launch {
+            val currentTime = System.currentTimeMillis()
+
+            // 1. Деактивируем все просроченные напоминания
+            repository.deactivateExpiredReminders(currentTime)
+
+            // 2. Удаляем все неактивные напоминания
+            repository.deleteInactiveReminders()
+
+            // 3. Обновляем список в памяти
+            loadReminders()
+
+            Log.d("Reminders", "Очистка напоминаний завершена")
+        }
+    }
+
+    fun loadReminders() {
+        viewModelScope.launch {
+            _reminders.value = repository.getReminders()
+        }
+    }
+
+    fun deleteReminder(id: String) {
+        viewModelScope.launch {
+            repository.deleteNotification(id)
+            loadReminders()
+        }
+    }
+
+    fun updateReminderTime(id: String, newTime: Long) {
+        viewModelScope.launch {
+            repository.updateReminderTime(id, newTime)
+            loadReminders()
         }
     }
 }

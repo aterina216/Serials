@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.serials.data.db.dao.SerialDao
+import com.example.serials.data.db.entity.ReminderEntity
 import com.example.serials.data.db.entity.SerialEntity
 
-@Database(entities = [SerialEntity::class], version = 6, exportSchema = false)
+@Database(entities = [SerialEntity::class, ReminderEntity::class], version = 8, exportSchema = false)
 abstract class SerialsDatabase: RoomDatabase() {
 
     abstract fun dao(): SerialDao

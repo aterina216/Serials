@@ -49,7 +49,8 @@ fun BottomBar(
     val items = listOf(
         BottomNavItem.Home,
         BottomNavItem.Favorites,
-        BottomNavItem.History
+        BottomNavItem.History,
+        BottomNavItem.Reminders
     )
 
     Surface(
