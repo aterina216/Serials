@@ -24,6 +24,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,11 +55,21 @@ import com.example.serials.ui.theme.PurpleGrey40
 import com.example.serials.ui.theme.ThemeManager
 import com.example.serials.ui.theme.lightBlue
 import com.example.serials.ui.viewmodel.SerialsViewModel
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
+import com.example.serials.ui.components.ReminderFlag
+import com.example.serials.utils.Reminder.cancelReminder
+import com.example.serials.utils.Reminder.clearAllReminders
+
 
 @Composable
-fun SettingsScreen(viewModel: SerialsViewModel) {
+fun SettingsScreen(navController: NavController,
+                   viewModel: SerialsViewModel) {
 
     val currentTheme by viewModel.currentTheme.collectAsState()
+    val context = LocalContext.current
+    val reminders by viewModel.reminders.collectAsState()
 
     Column(
         modifier = Modifier
@@ -132,6 +144,14 @@ fun SettingsScreen(viewModel: SerialsViewModel) {
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        ReminderFlag(
+            onDisableReminders = {
+
+                    clearAllReminders(context, reminders)
+                    viewModel.deleteAllReminders()
+            }
+        )
 
         Column(
             modifier = Modifier

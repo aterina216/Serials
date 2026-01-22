@@ -72,7 +72,7 @@ fun Navigation(viewModel: SerialsViewModel) {
                 RemindersScreen(viewModel)
             }
             composable("settings") {
-                SettingsScreen(viewModel)
+                SettingsScreen(navController, viewModel)
             }
         }
     }

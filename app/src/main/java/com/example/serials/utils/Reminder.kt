@@ -15,6 +15,21 @@ object Reminder {
 
     private const val TAG = "Reminder"
 
+    private const val PREFS_NAME = "app_settings"
+    private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
+
+
+    fun areNotificationsEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
+        return prefs.getBoolean("notifications_enabled", true)
+    }
+
+    fun setNotificationsEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_NOTIFICATIONS_ENABLED, enabled).apply()
+        Log.d(TAG, "Уведомления ${if (enabled) "включены" else "отключены"}")
+    }
+
     fun showReminder(
         context: Context,
         serialDetails: ReminderEntity,
@@ -37,6 +52,11 @@ object Reminder {
         // 1. Проверяем, что время в будущем
         if (time <= System.currentTimeMillis()) {
             Log.e(TAG, "ОШИБКА: Время в прошлом!")
+            return
+        }
+
+        if(!areNotificationsEnabled(context)) {
+            Log.d(TAG, "Уведомления отключены в настройках, напоминание не установлено")
             return
         }
 
@@ -95,5 +115,18 @@ object Reminder {
             alarmManager.cancel(pendingIntent)
             pendingIntent.cancel()
         }
+    }
+
+    fun clearAllReminders(context: Context, reminders: List<ReminderEntity>) {
+        Log.d(TAG, "=== ПОЛНАЯ ОЧИСТКА ВСЕХ НАПОМИНАНИЙ ===")
+        Log.d(TAG, "Количество напоминаний для отмены: ${reminders.size}")
+
+        reminders.forEach { reminder ->
+            cancelReminder(context, reminder.imdbID)
+        }
+
+        // Также отключаем все уведомления в настройках
+        setNotificationsEnabled(context, false)
+        Log.d(TAG, "Все напоминания отменены, уведомления отключены")
     }
 }

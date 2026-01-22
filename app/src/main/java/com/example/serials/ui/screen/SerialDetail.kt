@@ -62,6 +62,7 @@ import com.example.serials.ui.theme.Purple40
 import com.example.serials.ui.theme.Purple80
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import com.example.serials.utils.DownloadCover.downloadCover
+import com.example.serials.utils.Reminder.areNotificationsEnabled
 import com.example.serials.utils.Reminder.showReminder
 import kotlinx.coroutines.delay
 
@@ -440,17 +441,26 @@ fun ShowSerialDetails(
             }
         }
         if (showDateDialog) {
-            DateDialog(
-                onDateSelected = {
-                    date = it
-                    Log.d("DEBUG", "Выбрана дата: $date")
-                    showDateDialog = false
-                    showTime = true
-                },
-                onDismiss = {
-                    showDateDialog = false
-                }
-            )
+
+            if (areNotificationsEnabled(context)) {
+                DateDialog(
+                    onDateSelected = {
+                        date = it
+                        Log.d("DEBUG", "Выбрана дата: $date")
+                        showDateDialog = false
+                        showTime = true
+                    },
+                    onDismiss = {
+                        showDateDialog = false
+                    }
+                )
+            } else {
+                Toast.makeText(
+                    context,
+                    "Уведомления отключены в настройках",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
         if (showTime && date != null) {
             TimeDialog(
@@ -459,6 +469,7 @@ fun ShowSerialDetails(
                     time = it
                     Log.d("DEBUG", "Выбрано время: $time")
                     if (time != null) {
+
                         val reminder = convertSerialDetailsToReminderEntity(details, time!!)
                         showReminder(
                             context,
@@ -467,7 +478,9 @@ fun ShowSerialDetails(
                         )
 
                         viewModel.addReminder(reminder)
+
                     }
+
                 },
                 onDismiss = { showTime = false }
             )

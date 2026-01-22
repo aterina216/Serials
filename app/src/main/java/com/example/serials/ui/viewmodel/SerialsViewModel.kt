@@ -285,4 +285,20 @@ class SerialsViewModel(private val repository: SerialsRepository,
             loadReminders()
         }
     }
+
+    fun deleteAllReminders() {
+        viewModelScope.launch {
+            Log.d("Notifications", "Удаляем все напоминания из БД")
+
+            val reminders = repository.getReminders()
+            reminders.forEach {
+                reminder ->
+                repository.deleteNotification(reminder.imdbID)
+            }
+
+            loadReminders()
+
+            Log.d("Notifications", "Удалено ${reminders.size} напоминаний из БД")
+        }
+    }
 }

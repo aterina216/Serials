@@ -68,4 +68,10 @@ interface SerialDao {
 
     @Query("UPDATE reminders SET time = :time WHERE imdbID = :imdbId")
     suspend fun updateReminderTime(imdbId: String, time: Long)
+
+    @Query("DELETE FROM reminders")
+    suspend fun deleteAllReminders()
+
+    @Query("SELECT imdbID FROM reminders")
+    suspend fun getAllRemindersId(): List<String>
 }
