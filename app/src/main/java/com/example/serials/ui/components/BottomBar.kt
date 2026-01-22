@@ -50,7 +50,8 @@ fun BottomBar(
         BottomNavItem.Home,
         BottomNavItem.Favorites,
         BottomNavItem.History,
-        BottomNavItem.Reminders
+        BottomNavItem.Reminders,
+        BottomNavItem.Settings
     )
 
     Surface(

@@ -8,13 +8,16 @@ import com.example.serials.data.db.entity.SerialEntity
 import com.example.serials.data.remote.dto.SerialDetails
 import com.example.serials.data.repository.SerialsRepository
 import com.example.serials.ui.SerialCategories
+import com.example.serials.ui.theme.ThemeManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
+class SerialsViewModel(private val repository: SerialsRepository,
+    private val themeManager: ThemeManager): ViewModel() {
 
     private var serialsList = MutableStateFlow<List<SerialEntity>>(emptyList())
     val _serialList: StateFlow<List<SerialEntity>> = serialsList.asStateFlow()
@@ -54,6 +57,9 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
     private var _reminders = MutableStateFlow<List<ReminderEntity>>(emptyList())
     val reminders: StateFlow<List<ReminderEntity>> = _reminders
 
+    private var _currentTheme = MutableStateFlow(themeManager.getTheme())
+    val currentTheme: StateFlow<String> = _currentTheme
+
     init {
         Log.d("ViewModel", "🚀 ViewModel создан")
         loadSerialsFromCategory(currentCategory.value)
@@ -61,6 +67,12 @@ class SerialsViewModel(private val repository: SerialsRepository): ViewModel() {
         cleanupExpiredReminders()
     }
 
+    fun changeTheme(theme: String) {
+        viewModelScope.launch {
+            themeManager.saveTheme(theme)
+            _currentTheme.value = theme
+        }
+    }
     fun loadSerialDetails(imdb: String) {
         Log.d("ViewModel", "🔵 loadSerialDetails вызван с imdb: $imdb")
         viewModelScope.launch {

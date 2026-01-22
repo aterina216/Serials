@@ -11,6 +11,8 @@ import com.example.serials.data.remote.api.BASE_URL
 import com.example.serials.data.remote.api.OMDbApi
 import com.example.serials.data.remote.api.RetrofitClient
 import com.example.serials.data.repository.SerialsRepository
+import com.example.serials.ui.ThemeMode
+import com.example.serials.ui.theme.ThemeManager
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import com.example.serials.ui.viewmodel.ViewModelFactory
 import dagger.Module
@@ -76,15 +78,23 @@ class AppModule(private val app: Application) {
         )
     }
 
+
     @Singleton
     @Provides
-    fun providesViewModelFactory(repo: SerialsRepository): ViewModelFactory {
-        return ViewModelFactory(repo)
+    fun provideThemeMode(context: Context): ThemeManager {
+        return ThemeManager(context)
     }
 
     @Singleton
     @Provides
-    fun providesViewModel(repository: SerialsRepository): SerialsViewModel {
-        return SerialsViewModel(repository)
+    fun providesViewModelFactory(repo: SerialsRepository, themeManager: ThemeManager): ViewModelFactory {
+        return ViewModelFactory(repo, themeManager)
     }
+
+    @Singleton
+    @Provides
+    fun providesViewModel(repository: SerialsRepository, themeManager: ThemeManager): SerialsViewModel {
+        return SerialsViewModel(repository, themeManager)
+    }
+
 }

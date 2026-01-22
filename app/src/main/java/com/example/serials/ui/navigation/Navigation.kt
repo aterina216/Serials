@@ -22,6 +22,7 @@ import com.example.serials.ui.screen.FavoritesScreen
 import com.example.serials.ui.screen.HistoryScreen
 import com.example.serials.ui.screen.RemindersScreen
 import com.example.serials.ui.screen.SerialDetail
+import com.example.serials.ui.screen.SettingsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -69,6 +70,9 @@ fun Navigation(viewModel: SerialsViewModel) {
             }
             composable("reminders") {
                 RemindersScreen(viewModel)
+            }
+            composable("settings") {
+                SettingsScreen(viewModel)
             }
         }
     }

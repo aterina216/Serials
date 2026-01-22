@@ -40,4 +40,10 @@ sealed class BottomNavItem(
             title = "Напоминания",
             image = R.drawable.baseline_access_alarm_24
     )
+
+    object Settings: BottomNavItem(
+            route = "settings",
+            title = "Настройки",
+            image = R.drawable.outline_settings_24
+    )
 }
