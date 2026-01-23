@@ -22,14 +22,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,6 +60,7 @@ import com.example.serials.ui.components.StatusDropdownButton
 import com.example.serials.ui.components.TimeDialog
 import com.example.serials.ui.theme.Purple40
 import com.example.serials.ui.theme.Purple80
+import com.example.serials.ui.theme.textColors
 import com.example.serials.ui.viewmodel.SerialsViewModel
 import com.example.serials.utils.DownloadCover.downloadCover
 import com.example.serials.utils.Reminder.areNotificationsEnabled
@@ -152,7 +153,7 @@ fun SerialDetail(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text("Данные о сериале не найдены")
-                    Text("ID: $imdbID", fontSize = 12.sp, color = Color.Gray)
+                    Text("ID: $imdbID", fontSize = 12.sp, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
@@ -252,7 +253,7 @@ fun ShowSerialDetails(
                         .background(Color.Gray.copy(alpha = 0.3f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Нет постера", color = Color.Gray)
+                    Text("Нет постера", color = androidx.compose.material3.MaterialTheme.colorScheme.outline)
                 }
             }
 
@@ -268,14 +269,14 @@ fun ShowSerialDetails(
                 ) {
                     Text(
                         text = details.Title ?: "Без названия",
-                        style = MaterialTheme.typography.h3,
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.weight(1f)
                     )
 
                     details.imdbRating?.let { rating ->
                         Badge(
-                            containerColor = MaterialTheme.colors.primary,
+                            containerColor = MaterialTheme.colorScheme.primary,
                             content = {
                                 Text(rating, color = Color.White, fontWeight = FontWeight.Bold)
                             }
@@ -292,8 +293,8 @@ fun ShowSerialDetails(
                         // Убираем последний " • " если он есть
                         if (endsWith(" • ")) delete(length - 3, length)
                     },
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onSurface
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -302,7 +303,7 @@ fun ShowSerialDetails(
                 details.Plot?.takeIf { it != "N/A" && it.isNotEmpty() }?.let { plot ->
                     Text(
                         text = plot,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.bodyMedium,
                         lineHeight = 24.sp
                     )
                     Spacer(modifier = Modifier.height(20.dp))

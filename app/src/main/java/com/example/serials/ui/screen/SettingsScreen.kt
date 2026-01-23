@@ -59,6 +59,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.serials.ui.components.ReminderFlag
+import com.example.serials.ui.theme.textColors
 import com.example.serials.utils.Reminder.cancelReminder
 import com.example.serials.utils.Reminder.clearAllReminders
 

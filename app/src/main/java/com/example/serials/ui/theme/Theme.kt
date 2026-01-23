@@ -39,6 +39,32 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color.Black
 )
 
+val DarkTextColors = TextColors(
+    primary = Color.White,
+    secondary = Color(0xFFCCCCCC),
+    tertiary = Color(0xFFAAAAAA),
+    disabled = Color(0xFF666666)
+)
+
+val LightTextColors = TextColors(
+    primary = Color.Black,
+    secondary = Color(0xFF666666),
+    tertiary = Color(0xFF888888),
+    disabled = Color(0xFFAAAAAA)
+)
+
+data class TextColors(
+    val primary: Color,
+    val secondary: Color,
+    val tertiary: Color,
+    val disabled: Color
+)
+
+@Composable
+fun textColors(isDark: Boolean): TextColors {
+    return if(isDark) DarkTextColors else LightTextColors
+}
+
 @Composable
 fun SerialsTheme(
     viewModel: SerialsViewModel? = null,  // Делаем опциональным
