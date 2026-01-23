@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,12 +24,21 @@ import com.example.serials.ui.screen.HistoryScreen
 import com.example.serials.ui.screen.RemindersScreen
 import com.example.serials.ui.screen.SerialDetail
 import com.example.serials.ui.screen.SettingsScreen
+import com.example.serials.utils.StartScreenPreference
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(viewModel: SerialsViewModel) {
     val navController = rememberNavController()
     val currenrDestination = navController.currentDestination
+
+    val startScreenPref = StartScreenPreference.getStartScreen(LocalContext.current)
+    val startDestination = when (startScreenPref) {
+        "Избранное" -> "favorites"
+        "История" -> "history"
+        "Напоминания" -> "reminders"
+        else -> "home"
+    }
 
     // Логируем навигацию
     LaunchedEffect(navController) {
@@ -43,7 +53,7 @@ fun Navigation(viewModel: SerialsViewModel) {
 
         NavHost(
             navController = navController,
-            startDestination = "home",
+            startDestination = startDestination,
             modifier = Modifier.padding(PaddingValues)
         ) {
             composable("home") {
