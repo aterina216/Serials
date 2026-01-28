@@ -50,7 +50,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.junit.ktx)
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -93,4 +95,33 @@ dependencies {
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:4.5.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+// Если используешь Kotlin Coroutines
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+
+    androidTestImplementation ("androidx.room:room-testing:2.5.0")
+    androidTestImplementation ("androidx.test:runner:1.5.2")
+    androidTestImplementation ("androidx.test:rules:1.5.0")
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+
+    // Для работы с корутинами в тестах
+    androidTestImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+
+    // Для работы с InstantTaskExecutorRule (тестирование LiveData/Flow)
+    androidTestImplementation ("androidx.arch.core:core-testing:2.2.0")
+
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.11.0")
+    testImplementation("com.squareup.okhttp3:okhttp:4.11.0")
+    testImplementation("com.squareup.okhttp3:okhttp-tls:4.11.0")
+// Для Retrofit тестов
+    testImplementation("com.squareup.retrofit2:retrofit-mock:2.9.0")
+// Для работы с JSON в тестах
+    testImplementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    testImplementation("com.squareup.moshi:moshi-adapters:1.14.0")
+
+    testImplementation ("io.mockk:mockk:1.13.8")
+    testImplementation ("io.mockk:mockk-agent-jvm:1.13.8")
 }
